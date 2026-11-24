@@ -62,22 +62,19 @@ config:
   enablePreload: false
   logPath: "/logs"
   
-  pythonPath: "/usr/bin/python3"
+  pythonPath: "/usr/bin/python3.12"
   nodejsPath: "/usr/bin/node"
   
   # Libraries mounted for runtime isolation
-  systemLibRequirements:
-    - /lib
+  pythonLibPath:
+    - /usr/lib/python3.12
     - /usr/lib
+    - /lib
     - /etc/ssl/certs/ca-certificates.crt
     - /etc/hosts
     - /etc/resolv.conf
     - /usr/share/zoneinfo
     - /etc/localtime
-    
-  allowedEnvVars:
-    - NODE_PATH
-    - PATH
 
 # Proxy settings if outbound network needs to be routed through an SSRF proxy (Squid)
 proxy:

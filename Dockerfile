@@ -82,6 +82,7 @@ RUN apk update && apk add --no-cache \
     libseccomp \
     python-3.12 \
     py3.12-pip \
+    findutils \
     nodejs-22 \
     npm && \
     useradd -u 65537 sandbox

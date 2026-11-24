@@ -1,26 +1,43 @@
 diff --git a/internal/core/runner/nodejs/prescript.js b/internal/core/runner/nodejs/prescript.js
-index 85a1b53..c06d94f 100644
+index 85a1b53..430f55e 100644
 --- a/internal/core/runner/nodejs/prescript.js
 +++ b/internal/core/runner/nodejs/prescript.js
-@@ -10,6 +10,18 @@ const gid = parseInt(argv[3])
+@@ -1,5 +1,6 @@
+ const argv = process.argv
+ const fs = require('fs')
++const path = require('path')
+ 
+ const koffi = require('koffi')
+ const lib = koffi.load('./var/sandbox/sandbox-nodejs/nodejs.so')
+@@ -10,6 +11,15 @@ const gid = parseInt(argv[3])
  
  const options = JSON.parse(argv[4])
  
 +// Register sandboxed node_modules search paths before entering seccomp jail
-+const candidatePaths = [
++module.paths.push(
++    path.resolve(__dirname, 'node_modules'),
++    path.resolve(__dirname, '..', 'node_modules'),
++    path.resolve(__dirname, '..', '..', 'node_modules'),
 +    '/var/sandbox/sandbox-nodejs/nodejs-project/node_temp/node_modules',
-+    '/var/sandbox/sandbox-nodejs/nodejs-project/node_temp/node_temp/node_modules',
-+    '/node_modules'
-+];
-+for (const p of candidatePaths) {
-+    if (fs.existsSync(p)) {
-+        module.paths.push(p);
-+    }
-+}
++    '/var/sandbox/sandbox-nodejs/nodejs-project/node_temp/node_temp/node_modules'
++);
 +
  difySeccomp(uid, gid, options['enable_network'])
  
  const code = fs.readFileSync(3, 'utf8')
+diff --git a/internal/core/runner/python/env.sh b/internal/core/runner/python/env.sh
+index f44f720..29a5a73 100644
+--- a/internal/core/runner/python/env.sh
++++ b/internal/core/runner/python/env.sh
+@@ -37,7 +37,7 @@ elif [ -d "$src" ]; then
+     mkdir -p "$dest/$src"
+ 
+     # Find all files in the source directory
+-    find "$src" -type f,l | while read -r file; do
++    find "$src" \( -type f -o -type l \) | while read -r file; do
+         # Get the relative path of the file
+         rel_path="${file#$src/}"
+         # Get the directory of the relative path
 diff --git a/internal/static/nodejs_syscall/syscalls_amd64.go b/internal/static/nodejs_syscall/syscalls_amd64.go
 index 65aa4f1..8300852 100644
 --- a/internal/static/nodejs_syscall/syscalls_amd64.go

@@ -14,14 +14,13 @@ data:
     max_requests: {{ .Values.config.maxRequests }}
     worker_timeout: {{ .Values.config.workerTimeout }}
     python_path: {{ .Values.config.pythonPath | quote }}
+    python_lib_path:
+      {{- toYaml .Values.config.pythonLibPath | nindent 6 }}
     nodejs_path: {{ .Values.config.nodejsPath | quote }}
     enable_network: {{ .Values.config.enableNetwork }}
     enable_preload: {{ .Values.config.enablePreload }}
     log_path: {{ .Values.config.logPath | quote }}
-    system_lib_requirements:
-      {{- toYaml .Values.config.systemLibRequirements | nindent 6 }}
-    allowed_env_vars:
-      {{- toYaml .Values.config.allowedEnvVars | nindent 6 }}
+    allowed_syscalls:
     proxy:
       socks5: {{ .Values.proxy.socks5 | quote }}
       http: {{ .Values.proxy.http | quote }}
