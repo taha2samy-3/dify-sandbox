@@ -29,7 +29,7 @@ on:
         default: true
 
 permissions:
-  contents: read
+  contents: write
   packages: write
   id-token: write
   attestations: write
