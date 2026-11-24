@@ -1,0 +1,20 @@
+app:
+  port: 8194
+  debug: false
+  key: dify-sandbox
+max_workers: 8
+max_requests: 100
+worker_timeout: 15
+python_path: /usr/bin/python3
+nodejs_path: /usr/bin/node
+enable_network: true
+enable_preload: false
+log_path: "/logs"
+system_lib_requirements:
+  - /lib
+  - /usr/lib
+  - /etc/ssl/certs/ca-certificates.crt
+  - /etc/hosts
+  - /etc/resolv.conf
+  - /usr/share/zoneinfo
+  - /etc/localtime

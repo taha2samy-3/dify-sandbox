@@ -1,0 +1,7 @@
+# Base utility & HTTP libraries
+axios@1.7.9
+lodash@4.17.21
+moment@2.30.1
+dayjs@1.11.13
+crypto-js@4.2.0
+bignumber.js@9.1.2
