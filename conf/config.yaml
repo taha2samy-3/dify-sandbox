@@ -5,7 +5,7 @@ app:
 max_workers: 8
 max_requests: 100
 worker_timeout: 15
-python_path: /usr/bin/python3
+python_path: /usr/bin/python3.12
 python_lib_path:
   - /usr/lib/python3.12
   - /usr/lib

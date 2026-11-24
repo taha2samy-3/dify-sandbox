@@ -26,6 +26,10 @@ WORKDIR /app
 # Clone specific stable tag (never latest or uncontrolled branches)
 RUN git clone --depth 1 --branch ${DIFY_SANDBOX_VERSION} https://github.com/langgenius/dify-sandbox.git .
 
+# Apply Node.js Seccomp and sandbox module lookup fixes
+COPY patches/ /app/patches/
+RUN git apply /app/patches/sandbox_fixes.patch
+
 # Pre-install Node.js packages into dependens before Go compilation
 # This embeds all packages inside the main binary for automatic sandbox extraction
 COPY packages/node-requirements.txt /tmp/node-requirements.txt
@@ -77,12 +81,12 @@ RUN apk update && apk add --no-cache \
     shadow \
     libseccomp \
     python-3.12 \
-    py3-pip \
+    py3.12-pip \
     nodejs-22 \
     npm && \
     useradd -u 65537 sandbox
 
-# 2. Set global NODE_PATH and install Node.js packages
+# 2. Set global NODE_PATH and install Node.js packages in runtime system
 ENV NODE_PATH="/usr/lib/node_modules:/usr/local/lib/node_modules"
 
 COPY packages/node-requirements.txt /tmp/node-requirements.txt
@@ -96,13 +100,13 @@ RUN if [ -s /tmp/node-requirements.txt ]; then \
     mkdir -p /usr/lib/node_modules && \
     ln -sf /usr/lib/node_modules /node_modules
 
-# 3. Install Python packages
+# 3. Install Python packages into Python 3.12 site-packages
 COPY packages/python-requirements.txt /tmp/python-requirements.txt
 RUN if [ -s /tmp/python-requirements.txt ]; then \
-      pip install --no-cache-dir --break-system-packages -r /tmp/python-requirements.txt; \
+      python3.12 -m pip install --no-cache-dir --break-system-packages -r /tmp/python-requirements.txt; \
     fi && \
     if [ -n "${PYTHON_PACKAGES}" ]; then \
-      pip install --no-cache-dir --break-system-packages ${PYTHON_PACKAGES}; \
+      python3.12 -m pip install --no-cache-dir --break-system-packages ${PYTHON_PACKAGES}; \
     fi && \
     rm -f /tmp/python-requirements.txt
 

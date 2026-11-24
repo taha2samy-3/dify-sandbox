@@ -34,11 +34,6 @@ variable "NODE_PACKAGES" {
   default = ""
 }
 
-# Remote cache endpoint
-variable "CACHE_REF" {
-  default = "${REGISTRY}/${IMAGE_NAME}:buildcache"
-}
-
 group "default" {
   targets = ["sandbox"]
 }
@@ -59,12 +54,12 @@ target "sandbox" {
     "${REGISTRY}/${IMAGE_NAME}:${VERSION}",
     "${REGISTRY}/${IMAGE_NAME}:${DIFY_SANDBOX_VERSION}"
   ]
-  # Remote cache configuration
+  # Native GitHub Actions cache configuration
   cache-from = [
-    "type=registry,ref=${CACHE_REF}"
+    "type=gha"
   ]
   cache-to = [
-    "type=registry,ref=${CACHE_REF},mode=max"
+    "type=gha,mode=max"
   ]
 }
 

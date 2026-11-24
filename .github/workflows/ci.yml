@@ -73,10 +73,9 @@ jobs:
 
           echo "image_path=${IMAGE_PATH}" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "cache_ref=${IMAGE_PATH}:buildcache" >> "$GITHUB_OUTPUT"
           
           echo "Target Image: ${IMAGE_PATH}:${VERSION}"
-          echo "Cache Reference: ${IMAGE_PATH}:buildcache"
+          echo "Cache Backend: GitHub Actions Cache (type=gha)"
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.7.0
@@ -114,8 +113,8 @@ jobs:
             *.args.NODE_PACKAGES=${{ github.event.inputs.node_packages }}
             *.tags=${{ steps.meta.outputs.image_path }}:${{ steps.meta.outputs.version }}
             *.tags=${{ steps.meta.outputs.image_path }}:${{ env.DIFY_SANDBOX_STABLE_VERSION }}
-            *.cache-from=type=registry,ref=${{ steps.meta.outputs.cache_ref }}
-            *.cache-to=type=registry,ref=${{ steps.meta.outputs.cache_ref }},mode=max
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
 
       - name: Extract Image Digest
         if: steps.bake-overrides.outputs.push == 'true'

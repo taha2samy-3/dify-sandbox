@@ -1,0 +1,69 @@
+diff --git a/internal/core/runner/nodejs/prescript.js b/internal/core/runner/nodejs/prescript.js
+index 85a1b53..c06d94f 100644
+--- a/internal/core/runner/nodejs/prescript.js
++++ b/internal/core/runner/nodejs/prescript.js
+@@ -10,6 +10,18 @@ const gid = parseInt(argv[3])
+ 
+ const options = JSON.parse(argv[4])
+ 
++// Register sandboxed node_modules search paths before entering seccomp jail
++const candidatePaths = [
++    '/var/sandbox/sandbox-nodejs/nodejs-project/node_temp/node_modules',
++    '/var/sandbox/sandbox-nodejs/nodejs-project/node_temp/node_temp/node_modules',
++    '/node_modules'
++];
++for (const p of candidatePaths) {
++    if (fs.existsSync(p)) {
++        module.paths.push(p);
++    }
++}
++
+ difySeccomp(uid, gid, options['enable_network'])
+ 
+ const code = fs.readFileSync(3, 'utf8')
+diff --git a/internal/static/nodejs_syscall/syscalls_amd64.go b/internal/static/nodejs_syscall/syscalls_amd64.go
+index 65aa4f1..8300852 100644
+--- a/internal/static/nodejs_syscall/syscalls_amd64.go
++++ b/internal/static/nodejs_syscall/syscalls_amd64.go
+@@ -9,17 +9,23 @@ const (
+ 	SYS_RSEQ = 334
+ 	// 435
+ 	SYS_CLONE3 = 435
++	// 318
++	SYS_GETRANDOM = 318
++	// 332
++	SYS_STATX = 332
+ )
+ 
+ var ALLOW_SYSCALLS = []int{
+ 	syscall.SYS_OPEN, syscall.SYS_WRITE, syscall.SYS_CLOSE, syscall.SYS_READ,
+ 	syscall.SYS_OPENAT, syscall.SYS_NEWFSTATAT, syscall.SYS_IOCTL, syscall.SYS_LSEEK,
+-	syscall.SYS_FSTAT,
++	syscall.SYS_FSTAT, syscall.SYS_STAT, syscall.SYS_LSTAT, syscall.SYS_ACCESS,
+ 	syscall.SYS_MPROTECT, syscall.SYS_MMAP, syscall.SYS_MUNMAP,
+ 	syscall.SYS_MREMAP,
+ 	syscall.SYS_BRK,
+ 	syscall.SYS_RT_SIGACTION, syscall.SYS_RT_SIGPROCMASK,
+ 	syscall.SYS_MADVISE, syscall.SYS_GETPID, syscall.SYS_GETUID,
++	syscall.SYS_GETGID, syscall.SYS_GETEUID, syscall.SYS_GETEGID, syscall.SYS_CAPGET,
++	syscall.SYS_GETCWD, syscall.SYS_GETDENTS64,
+ 	syscall.SYS_FCNTL, syscall.SYS_SIGALTSTACK, syscall.SYS_RT_SIGRETURN,
+ 	syscall.SYS_FUTEX,
+ 	syscall.SYS_EXIT_GROUP,
+@@ -36,12 +42,13 @@ var ALLOW_SYSCALLS = []int{
+ 
+ 	syscall.SYS_TGKILL,
+ 
+-	syscall.SYS_READLINK,
+-	syscall.SYS_DUP3,
++	syscall.SYS_READLINK, syscall.SYS_READLINKAT, syscall.SYS_FACCESSAT,
++	syscall.SYS_DUP3, syscall.SYS_PIPE2, syscall.SYS_EVENTFD2, syscall.SYS_PRLIMIT64,
++	SYS_GETRANDOM, SYS_STATX,
+ }
+ 
+ var ALLOW_ERROR_SYSCALLS = []int{
+-	syscall.SYS_CLONE, SYS_CLONE3,
++	syscall.SYS_CLONE, SYS_CLONE3, syscall.SYS_MKDIR, syscall.SYS_MKDIRAT,
+ }
+ 
+ var ALLOW_NETWORK_SYSCALLS = []int{
