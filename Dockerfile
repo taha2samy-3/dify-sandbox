@@ -9,6 +9,7 @@ FROM ${GOLANG_IMAGE} AS builder
 
 # Pinned Dify Sandbox stable release tag (default 0.2.15)
 ARG DIFY_SANDBOX_VERSION=0.2.15
+ARG NODE_PACKAGES=""
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
@@ -16,12 +17,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     libseccomp-dev \
     ca-certificates \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Clone specific stable tag (never latest or uncontrolled branches)
 RUN git clone --depth 1 --branch ${DIFY_SANDBOX_VERSION} https://github.com/langgenius/dify-sandbox.git .
+
+# Pre-install Node.js packages into dependens before Go compilation
+# This embeds all packages inside the main binary for automatic sandbox extraction
+COPY packages/node-requirements.txt /tmp/node-requirements.txt
+RUN cd internal/core/runner/nodejs/dependens/node_temp && \
+    if [ -s /tmp/node-requirements.txt ]; then \
+      grep -v '^[[:space:]]*#' /tmp/node-requirements.txt | grep -v '^[[:space:]]*$' | xargs -r npm install --save; \
+    fi && \
+    if [ -n "${NODE_PACKAGES}" ]; then \
+      npm install --save ${NODE_PACKAGES}; \
+    fi && \
+    rm -f /tmp/node-requirements.txt
 
 ENV CGO_ENABLED=1
 ENV GOOS=linux
@@ -98,12 +113,13 @@ COPY --from=builder /app/dependencies/python-requirements.txt /dependencies/pyth
 
 # 5. Create directories & copy configuration
 RUN mkdir -p /conf /var/sandbox/sandbox-python /var/sandbox/sandbox-nodejs /logs && \
+    chmod 777 /logs && \
     chmod +x /main /env
 
 COPY conf/config.yaml /conf/config.yaml
 
 # 6. Initialize python dependencies environment and clean up setup binary
-RUN /env && rm -f /env
+RUN /env && rm -f /env && chmod -R 755 /var/sandbox
 
 EXPOSE 8194
 

@@ -2,12 +2,12 @@
 set -eo pipefail
 
 PORT="${1:-8194}"
-API_KEY="${2:-dify-sandbox-test-key}"
+API_KEY="${2:-dify-sandbox-ci-test-key}"
 BASE_URL="http://localhost:${PORT}"
 
 echo "============================================================"
-echo "🧪 Starting Comprehensive Dify Sandbox Test Suite"
-echo "Target: $BASE_URL | API Key: $API_KEY"
+echo "🚀 Running Dify Sandbox Comprehensive Verification Test Suite"
+echo "   Endpoint: $BASE_URL"
 echo "============================================================"
 
 PASSED=0
@@ -18,7 +18,7 @@ run_test() {
   local lang="$2"
   local code="$3"
   local expected_keyword="$4"
-  local should_fail="${5:-false}"
+  local expect_error="${5:-false}"
 
   echo -n "👉 Test: [$lang] $name ... "
 
@@ -26,27 +26,27 @@ run_test() {
   payload=$(jq -n \
     --arg lang "$lang" \
     --arg code "$code" \
-    '{language: $lang, code: $code}')
+    '{language: $lang, code: $code, preload: "", enable_network: true}')
 
-  local response
-  response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "$BASE_URL/v1/sandbox/run" \
-    -H "X-Api-Key: $API_KEY" \
+  local res
+  res=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/v1/sandbox/run" \
     -H "Content-Type: application/json" \
-    -d "$payload")
+    -H "X-Api-Key: $API_KEY" \
+    -d "$payload" || true)
 
   local http_code
-  http_code=$(echo "$response" | grep "HTTP_STATUS" | cut -d':' -f2)
+  http_code=$(echo "$res" | tail -n1)
   local body
-  body=$(echo "$response" | grep -v "HTTP_STATUS")
+  body=$(echo "$res" | sed '$d')
 
-  if [ "$http_code" -ne 200 ]; then
+  if [ "$http_code" != "200" ]; then
     echo "❌ FAILED (HTTP $http_code)"
     echo "   Response: $body"
     FAILED=$((FAILED + 1))
     return
   fi
 
-  if [ "$should_fail" = "true" ]; then
+  if [ "$expect_error" = "true" ]; then
     local err
     err=$(echo "$body" | jq -r '.data.error // empty')
     if [ -n "$err" ] || [[ "$body" == *"$expected_keyword"* ]]; then
@@ -87,20 +87,24 @@ run_test "Basic Python Execution" "python3" \
   "Hello Dify Sandbox Python!"
 
 run_test "Python UID Isolation (Non-root)" "python3" \
-  'import os; print(f"RUNNER_UID:{os.getuid()}")' \
+  'import os; print("RUNNER_UID:" + str(os.getuid()))' \
   "RUNNER_UID:"
 
 run_test "Python Scientific Stack (NumPy & Pandas)" "python3" \
-  'import numpy as np, pandas as pd; df = pd.DataFrame({"a": [1, 2], "b": [3, 4]}); print(f"SUM:{df.to_numpy().sum()}")' \
+  'import numpy as np, pandas as pd; df = pd.DataFrame({"a": [1, 2], "b": [3, 4]}); print("SUM:" + str(df.to_numpy().sum()))' \
   "SUM:10"
 
 run_test "Python LLM Tokenizer (Tiktoken)" "python3" \
-  'import tiktoken; enc = tiktoken.get_encoding("cl100k_base"); print(f"TOKENS:{len(enc.encode(\"Hello World\"))}")' \
+  'import tiktoken; enc = tiktoken.get_encoding("cl100k_base"); print("TOKENS:" + str(len(enc.encode("Hello World"))))' \
   "TOKENS:2"
 
 run_test "Python HTTP & Jinja2 Template" "python3" \
   'import jinja2, requests; t = jinja2.Template("Hello {{ name }}!"); print(t.render(name="World"))' \
   "Hello World!"
+
+run_test "Python Cryptography Security" "python3" \
+  'from cryptography.fernet import Fernet; key = Fernet.generate_key(); f = Fernet(key); token = f.encrypt(b"secret message"); print("FERNET_DECRYPT:" + f.decrypt(token).decode())' \
+  "FERNET_DECRYPT:secret message"
 
 run_test "Python Syntax Error Handling" "python3" \
   'def broken_function(: pass' \

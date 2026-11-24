@@ -6,19 +6,21 @@ max_workers: 8
 max_requests: 100
 worker_timeout: 15
 python_path: /usr/bin/python3
-nodejs_path: /usr/bin/node
-enable_network: true
-enable_preload: false
-log_path: "/logs"
-system_lib_requirements:
-  - /lib
+python_lib_path:
+  - /usr/lib/python3.12
   - /usr/lib
+  - /lib
   - /etc/ssl/certs/ca-certificates.crt
   - /etc/hosts
   - /etc/resolv.conf
   - /usr/share/zoneinfo
   - /etc/localtime
-allowed_env_vars:
-  - NODE_PATH
-  - PATH
-
+nodejs_path: /usr/bin/node
+enable_network: true
+enable_preload: false
+log_path: "/logs"
+allowed_syscalls:
+proxy:
+  socks5: ''
+  http: ''
+  https: ''
