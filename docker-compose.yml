@@ -1,0 +1,34 @@
+services:
+  sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DIFY_SANDBOX_VERSION: "0.2.15"
+        PYTHON_PACKAGES: "pandas numpy requests openpyxl tiktoken"
+        NODE_PACKAGES: "axios lodash moment crypto-js dayjs bignumber.js"
+    image: ghcr.io/pair-ai-platform/dify-sandbox:0.2.15-local
+    container_name: dify-sandbox-compose-test
+    restart: unless-stopped
+    cap_add:
+      - SYS_CHROOT
+      - CHOWN
+      - SETUID
+      - SETGID
+    environment:
+      API_KEY: "dify-sandbox-test-key"
+      GIN_MODE: "release"
+      WORKER_TIMEOUT: 15
+      ENABLE_NETWORK: "true"
+      SANDBOX_PORT: 8194
+      NODE_PATH: "/usr/lib/node_modules:/usr/local/lib/node_modules"
+    ports:
+      - "8194:8194"
+    volumes:
+      - ./conf/config.yaml:/conf/config.yaml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8194/health || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 3s

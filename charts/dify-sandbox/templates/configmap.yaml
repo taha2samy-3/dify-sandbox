@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "dify-sandbox.fullname" . }}
+  labels:
+    {{- include "dify-sandbox.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    app:
+      port: {{ .Values.config.port }}
+      debug: {{ .Values.config.debug }}
+      key: dify-sandbox
+    max_workers: {{ .Values.config.maxWorkers }}
+    max_requests: {{ .Values.config.maxRequests }}
+    worker_timeout: {{ .Values.config.workerTimeout }}
+    python_path: {{ .Values.config.pythonPath | quote }}
+    nodejs_path: {{ .Values.config.nodejsPath | quote }}
+    enable_network: {{ .Values.config.enableNetwork }}
+    enable_preload: {{ .Values.config.enablePreload }}
+    log_path: {{ .Values.config.logPath | quote }}
+    system_lib_requirements:
+      {{- toYaml .Values.config.systemLibRequirements | nindent 6 }}
+    allowed_env_vars:
+      {{- toYaml .Values.config.allowedEnvVars | nindent 6 }}
+    proxy:
+      socks5: {{ .Values.proxy.socks5 | quote }}
+      http: {{ .Values.proxy.http | quote }}
+      https: {{ .Values.proxy.https | quote }}
+      no_proxy: {{ .Values.proxy.noProxy | quote }}

@@ -1,0 +1,16 @@
+apiVersion: v2
+name: dify-sandbox
+description: High-performance, secure code execution sandbox for Dify based on Wolfi OS with Linux Seccomp isolation.
+type: application
+version: 0.1.0
+appVersion: "0.2.15"
+keywords:
+  - dify
+  - sandbox
+  - code-execution
+  - security
+  - seccomp
+  - wolfi
+home: https://github.com/Pair-AI-Platform/dify-sandbox
+maintainers:
+  - name: Pair AI Platform DevOps

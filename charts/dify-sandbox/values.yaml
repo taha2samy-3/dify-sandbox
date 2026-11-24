@@ -1,0 +1,146 @@
+# Default values for dify-sandbox.
+# High-availability code execution engine for Dify workflows.
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/pair-ai-platform/dify-sandbox
+  pullPolicy: IfNotPresent
+  # STRICT: Pinned version tag (NEVER use latest)
+  tag: "0.2.15-v1.0.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+# SecurityContext required for Dify Sandbox syscall & UID isolation
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: false
+  runAsUser: 0
+  runAsGroup: 0
+  privileged: false
+  capabilities:
+    drop:
+      - ALL
+    add:
+      - SYS_CHROOT
+      - CHOWN
+      - SETUID
+      - SETGID
+
+service:
+  type: ClusterIP
+  port: 8194
+  annotations: {}
+
+# Core Sandbox Application Configurations
+config:
+  apiKey: "dify-sandbox-cluster-secret"
+  # Existing secret name if managing secret externally
+  existingSecret: ""
+  existingSecretKey: "api-key"
+  
+  port: 8194
+  debug: false
+  maxWorkers: 8
+  maxRequests: 100
+  workerTimeout: 15
+  enableNetwork: true
+  enablePreload: false
+  logPath: "/logs"
+  
+  pythonPath: "/usr/bin/python3"
+  nodejsPath: "/usr/bin/node"
+  
+  # Libraries mounted for runtime isolation
+  systemLibRequirements:
+    - /lib
+    - /usr/lib
+    - /etc/ssl/certs/ca-certificates.crt
+    - /etc/hosts
+    - /etc/resolv.conf
+    - /usr/share/zoneinfo
+    - /etc/localtime
+    
+  allowedEnvVars:
+    - NODE_PATH
+    - PATH
+
+# Proxy settings if outbound network needs to be routed through an SSRF proxy (Squid)
+proxy:
+  socks5: ""
+  http: ""
+  https: ""
+  noProxy: ""
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+
+# Health checks
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8194
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8194
+  initialDelaySeconds: 3
+  periodSeconds: 5
+  timeoutSeconds: 2
+  failureThreshold: 2
+
+# Horizontal Pod Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 8
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 80
+
+# Network Policy to protect internal cluster resources from untrusted user code
+networkPolicy:
+  enabled: true
+  # Allow egress to internet for package downloads/HTTP nodes,
+  # but block internal Kubernetes API & Cloud Metadata IP (169.254.169.254)
+  blockInternalClusterAccess: true
+  # DigitalOcean / Cloud metadata CIDR
+  cloudMetadataCidr: "169.254.169.254/32"
+
+nodeSelector: {}
+tolerations: []
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - dify-sandbox
+          topologyKey: kubernetes.io/hostname

@@ -1,0 +1,13 @@
+Dify Sandbox has been deployed successfully!
+
+Service: {{ include "dify-sandbox.fullname" . }} (Type: {{ .Values.service.type }}, Port: {{ .Values.service.port }})
+
+Internal Cluster Endpoint for Dify API and Celery Workers:
+  http://{{ include "dify-sandbox.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+
+To test the sandbox execution from within the cluster:
+  kubectl run curl-test --rm -it --restart=Never --image=curlimages/curl -- \
+    curl -s -X POST http://{{ include "dify-sandbox.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/v1/sandbox/run \
+      -H "X-Api-Key: {{ .Values.config.apiKey }}" \
+      -H "Content-Type: application/json" \
+      -d '{"language": "python3", "code": "print(\"Hello from Dify Sandbox!\")"}'

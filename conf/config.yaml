@@ -18,3 +18,7 @@ system_lib_requirements:
   - /etc/resolv.conf
   - /usr/share/zoneinfo
   - /etc/localtime
+allowed_env_vars:
+  - NODE_PATH
+  - PATH
+

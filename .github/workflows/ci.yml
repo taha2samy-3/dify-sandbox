@@ -157,3 +157,12 @@ jobs:
             --certificate-identity-regexp "^https://github.com/${GITHUB_REPOSITORY_OWNER}/.*" \
             "$IMAGE_URI"
           echo "Signature successfully verified!"
+
+      - name: Create GitHub Release
+        if: steps.bake-overrides.outputs.push == 'true' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "Dify Sandbox Image ${GITHUB_REF_NAME}" \
+            --generate-notes

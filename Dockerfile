@@ -26,8 +26,10 @@ RUN git clone --depth 1 --branch ${DIFY_SANDBOX_VERSION} https://github.com/lang
 ENV CGO_ENABLED=1
 ENV GOOS=linux
 ENV GOARCH=amd64
+ENV GOTOOLCHAIN=auto
 
-RUN go mod tidy && \
+RUN go mod edit -go=1.24 && \
+    go mod tidy && \
     # 1. Compile Python Seccomp C-shared library
     go build -o internal/core/runner/python/python.so -buildmode=c-shared -ldflags="-s -w" cmd/lib/python/main.go && \
     # 2. Compile Node.js Seccomp C-shared library
@@ -56,23 +58,27 @@ RUN apk update && apk add --no-cache \
     curl \
     ca-certificates \
     tzdata \
+    shadow \
     libseccomp \
     python-3.12 \
     py3-pip \
     nodejs-22 \
-    npm
+    npm && \
+    useradd -u 65537 sandbox
 
 # 2. Set global NODE_PATH and install Node.js packages
 ENV NODE_PATH="/usr/lib/node_modules:/usr/local/lib/node_modules"
 
 COPY packages/node-requirements.txt /tmp/node-requirements.txt
 RUN if [ -s /tmp/node-requirements.txt ]; then \
-      xargs npm install -g < /tmp/node-requirements.txt; \
+      grep -v '^[[:space:]]*#' /tmp/node-requirements.txt | grep -v '^[[:space:]]*$' | xargs -r npm install -g; \
     fi && \
     if [ -n "${NODE_PACKAGES}" ]; then \
       npm install -g ${NODE_PACKAGES}; \
     fi && \
-    rm -f /tmp/node-requirements.txt
+    rm -f /tmp/node-requirements.txt && \
+    mkdir -p /usr/lib/node_modules && \
+    ln -sf /usr/lib/node_modules /node_modules
 
 # 3. Install Python packages
 COPY packages/python-requirements.txt /tmp/python-requirements.txt
