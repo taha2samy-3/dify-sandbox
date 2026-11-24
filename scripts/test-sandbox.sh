@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE="${1:-ghcr.io/pair-ai-platform/dify-sandbox:0.2.15-v1.0.0}"
+IMAGE="${1:-ghcr.io/taha2samy-3/dify-sandbox:0.2.15-v1.0.0}"
 PORT="${2:-8194}"
 CONTAINER_NAME="dify-sandbox-test-$(date +%s)"
 API_KEY="dify-sandbox-test-key"

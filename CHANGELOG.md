@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CI/CD Pipeline & Supply Chain Security:**
   - Added [.github/workflows/ci.yml](file:///home/taha/Desktop/ourprojects/dify-sandbox/.github/workflows/ci.yml) featuring:
     - Automated Buildx Bake compilation.
-    - Remote Registry Cache (`ghcr.io/pair-ai-platform/dify-sandbox:buildcache`).
+    - Remote Registry Cache (`ghcr.io/taha2samy-3/dify-sandbox:buildcache`).
     - Keyless signing with **Cosign** (Sigstore) via GitHub Actions OIDC.
     - Immediate in-pipeline signature verification (`cosign verify`).
     - SLSA Level 3 Build Provenance attestation via `actions/attest-build-provenance@v2`.

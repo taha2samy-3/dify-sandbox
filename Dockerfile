@@ -29,6 +29,7 @@ ENV GOARCH=amd64
 ENV GOTOOLCHAIN=auto
 
 RUN go mod edit -go=1.24 && \
+    go get -u golang.org/x/crypto@latest golang.org/x/net@latest golang.org/x/sys@latest google.golang.org/protobuf@latest && \
     go mod tidy && \
     # 1. Compile Python Seccomp C-shared library
     go build -o internal/core/runner/python/python.so -buildmode=c-shared -ldflags="-s -w" cmd/lib/python/main.go && \

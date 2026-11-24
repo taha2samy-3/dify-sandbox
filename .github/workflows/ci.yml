@@ -130,6 +130,43 @@ jobs:
           echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
           echo "Image Digest: ${DIGEST}"
 
+      - name: Run Sandbox Verification Tests
+        if: steps.bake-overrides.outputs.push == 'true'
+        env:
+          IMAGE_TAG: "${{ steps.meta.outputs.image_path }}:${{ steps.meta.outputs.version }}"
+          API_KEY: "dify-sandbox-ci-test-key"
+        run: |
+          echo "Pulling pushed image for validation: $IMAGE_TAG"
+          docker pull "$IMAGE_TAG"
+          
+          echo "Starting test container..."
+          docker run -d \
+            --name dify-sandbox-ci-test \
+            --cap-add=SYS_CHROOT \
+            --cap-add=CHOWN \
+            --cap-add=SETUID \
+            --cap-add=SETGID \
+            -p 8194:8194 \
+            -e API_KEY="$API_KEY" \
+            -e GIN_MODE="release" \
+            "$IMAGE_TAG"
+
+          echo "Waiting for sandbox healthcheck..."
+          for i in {1..30}; do
+            if curl -sf http://localhost:8194/health >/dev/null 2>&1; then
+              echo "Sandbox is healthy!"
+              break
+            fi
+            sleep 1
+          done
+
+          echo "Running comprehensive test suite..."
+          chmod +x scripts/comprehensive_tests.sh
+          ./scripts/comprehensive_tests.sh 8194 "$API_KEY"
+
+          echo "Cleaning up test container..."
+          docker rm -f dify-sandbox-ci-test
+
       - name: Attest SLSA L3 Build Provenance
         if: steps.bake-overrides.outputs.push == 'true' && steps.digest.outputs.digest != ''
         uses: actions/attest-build-provenance@v2

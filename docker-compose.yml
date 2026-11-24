@@ -7,7 +7,7 @@ services:
         DIFY_SANDBOX_VERSION: "0.2.15"
         PYTHON_PACKAGES: "pandas numpy requests openpyxl tiktoken"
         NODE_PACKAGES: "axios lodash moment crypto-js dayjs bignumber.js"
-    image: ghcr.io/pair-ai-platform/dify-sandbox:0.2.15-local
+    image: ghcr.io/taha2samy-3/dify-sandbox:0.2.15-local
     container_name: dify-sandbox-compose-test
     restart: unless-stopped
     cap_add:

@@ -1,5 +1,5 @@
 variable "REGISTRY" {
-  default = "ghcr.io/pair-ai-platform"
+  default = "ghcr.io/taha2samy-3"
 }
 
 variable "IMAGE_NAME" {

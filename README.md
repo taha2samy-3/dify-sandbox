@@ -55,11 +55,11 @@ docker buildx bake sandbox
 ### 2. Run local tests
 ```bash
 chmod +x scripts/test-sandbox.sh
-./scripts/test-sandbox.sh ghcr.io/pair-ai-platform/dify-sandbox:0.2.15-v1.0.0
+./scripts/test-sandbox.sh ghcr.io/taha2samy-3/dify-sandbox:0.2.15-v1.0.0
 ```
 
 ### 3. Verify Image Signature
 ```bash
 chmod +x scripts/verify-signature.sh
-./scripts/verify-signature.sh ghcr.io/pair-ai-platform/dify-sandbox:0.2.15-v1.0.0
+./scripts/verify-signature.sh ghcr.io/taha2samy-3/dify-sandbox:0.2.15-v1.0.0
 ```

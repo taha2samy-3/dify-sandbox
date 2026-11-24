@@ -4,7 +4,7 @@
 replicaCount: 2
 
 image:
-  repository: ghcr.io/pair-ai-platform/dify-sandbox
+  repository: ghcr.io/taha2samy-3/dify-sandbox
   pullPolicy: IfNotPresent
   # STRICT: Pinned version tag (NEVER use latest)
   tag: "0.2.15-v1.0.0"
