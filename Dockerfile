@@ -124,7 +124,9 @@ RUN mkdir -p /conf /var/sandbox/sandbox-python /var/sandbox/sandbox-nodejs /logs
 COPY conf/config.yaml /conf/config.yaml
 
 # 6. Initialize python dependencies environment and clean up setup binary
-RUN /env && rm -f /env && chmod -R 755 /var/sandbox && \
+RUN /env && rm -f /env && \
+    rm -f /var/sandbox/sandbox-python/etc/hosts /var/sandbox/sandbox-python/etc/resolv.conf && \
+    chmod -R 755 /var/sandbox && \
     mkdir -p /var/sandbox/sandbox-python/tmp /var/sandbox/sandbox-nodejs/tmp && \
     chmod 1777 /var/sandbox/sandbox-python/tmp /var/sandbox/sandbox-nodejs/tmp
 

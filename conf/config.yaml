@@ -7,12 +7,13 @@ max_requests: 100
 worker_timeout: 15
 python_path: /usr/bin/python3.12
 python_lib_path:
+  - /etc/hosts
+  - /etc/resolv.conf
+  - /etc/ssl/cert.pem
+  - /etc/ssl/certs/ca-certificates.crt
   - /usr/lib/python3.12
   - /usr/lib
   - /lib
-  - /etc/ssl/certs/ca-certificates.crt
-  - /etc/hosts
-  - /etc/resolv.conf
   - /usr/share/zoneinfo
   - /etc/localtime
 nodejs_path: /usr/bin/node
