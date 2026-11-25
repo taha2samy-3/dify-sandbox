@@ -285,10 +285,10 @@ index 0e24ee2..d03f5b4 100644
  	initConfig()
  	// init dependencies, it will cost some times
 diff --git a/internal/static/nodejs_syscall/syscalls_amd64.go b/internal/static/nodejs_syscall/syscalls_amd64.go
-index 65aa4f1..c7de247 100644
+index 65aa4f1..d47701a 100644
 --- a/internal/static/nodejs_syscall/syscalls_amd64.go
 +++ b/internal/static/nodejs_syscall/syscalls_amd64.go
-@@ -9,24 +9,39 @@ const (
+@@ -9,24 +9,43 @@ const (
  	SYS_RSEQ = 334
  	// 435
  	SYS_CLONE3 = 435
@@ -302,6 +302,10 @@ index 65aa4f1..c7de247 100644
 +	SYS_FACCESSAT2 = 439
 +	// 316
 +	SYS_RENAMEAT2 = 316
++	// 307
++	SYS_SENDMMSG = 307
++	// 299
++	SYS_RECVMMSG = 299
  )
  
  var ALLOW_SYSCALLS = []int{
@@ -333,7 +337,7 @@ index 65aa4f1..c7de247 100644
  	SYS_RSEQ,
  
  	syscall.SYS_SETGROUPS, syscall.SYS_SETGID, syscall.SYS_SETUID, syscall.SYS_GETTID,
-@@ -36,17 +51,20 @@ var ALLOW_SYSCALLS = []int{
+@@ -36,17 +55,20 @@ var ALLOW_SYSCALLS = []int{
  
  	syscall.SYS_TGKILL,
  
@@ -354,16 +358,17 @@ index 65aa4f1..c7de247 100644
  var ALLOW_NETWORK_SYSCALLS = []int{
  	syscall.SYS_SOCKET, syscall.SYS_CONNECT, syscall.SYS_BIND, syscall.SYS_LISTEN, syscall.SYS_ACCEPT, syscall.SYS_SENDTO, syscall.SYS_RECVFROM,
 -	syscall.SYS_GETSOCKNAME, syscall.SYS_RECVMSG, syscall.SYS_GETPEERNAME, syscall.SYS_SETSOCKOPT, syscall.SYS_PPOLL, syscall.SYS_UNAME,
-+	syscall.SYS_GETSOCKNAME, syscall.SYS_RECVMSG, syscall.SYS_GETPEERNAME, syscall.SYS_SETSOCKOPT, syscall.SYS_SHUTDOWN, syscall.SYS_PPOLL, syscall.SYS_UNAME,
- 	syscall.SYS_SENDMSG, syscall.SYS_GETSOCKOPT,
+-	syscall.SYS_SENDMSG, syscall.SYS_GETSOCKOPT,
 -	syscall.SYS_FCNTL, syscall.SYS_FSTATFS,
++	syscall.SYS_GETSOCKNAME, syscall.SYS_RECVMSG, syscall.SYS_GETPEERNAME, syscall.SYS_SETSOCKOPT, syscall.SYS_SHUTDOWN, syscall.SYS_PPOLL, syscall.SYS_UNAME,
++	syscall.SYS_SENDMSG, SYS_SENDMMSG, SYS_RECVMMSG, syscall.SYS_GETSOCKOPT,
 +	syscall.SYS_FCNTL, syscall.SYS_FSTATFS, syscall.SYS_SOCKETPAIR, syscall.SYS_STATFS,
  }
 diff --git a/internal/static/python_syscall/syscalls_amd64.go b/internal/static/python_syscall/syscalls_amd64.go
-index eb33590..302c0a3 100644
+index eb33590..f245148 100644
 --- a/internal/static/python_syscall/syscalls_amd64.go
 +++ b/internal/static/python_syscall/syscalls_amd64.go
-@@ -5,48 +5,63 @@ package python_syscall
+@@ -5,48 +5,64 @@ package python_syscall
  import "syscall"
  
  const (
@@ -378,6 +383,7 @@ index eb33590..302c0a3 100644
 +	SYS_CLONE3     = 435
 +	SYS_FACCESSAT2 = 439
 +	SYS_RENAMEAT2  = 316
++	SYS_RECVMMSG   = 299
  )
  
  var ALLOW_SYSCALLS = []int{
@@ -434,7 +440,8 @@ index eb33590..302c0a3 100644
  var ALLOW_NETWORK_SYSCALLS = []int{
  	syscall.SYS_SOCKET, syscall.SYS_CONNECT, syscall.SYS_BIND, syscall.SYS_LISTEN, syscall.SYS_ACCEPT, syscall.SYS_SENDTO, syscall.SYS_RECVFROM,
 -	syscall.SYS_GETSOCKNAME, syscall.SYS_RECVMSG, syscall.SYS_GETPEERNAME, syscall.SYS_SETSOCKOPT, syscall.SYS_PPOLL, syscall.SYS_UNAME,
+-	syscall.SYS_SENDMSG, SYS_SENDMMSG, syscall.SYS_GETSOCKOPT,
 +	syscall.SYS_GETSOCKNAME, syscall.SYS_RECVMSG, syscall.SYS_GETPEERNAME, syscall.SYS_SETSOCKOPT, syscall.SYS_SHUTDOWN, syscall.SYS_PPOLL, syscall.SYS_UNAME,
- 	syscall.SYS_SENDMSG, SYS_SENDMMSG, syscall.SYS_GETSOCKOPT,
++	syscall.SYS_SENDMSG, SYS_SENDMMSG, SYS_RECVMMSG, syscall.SYS_GETSOCKOPT,
  	syscall.SYS_FSTAT, syscall.SYS_FCNTL, syscall.SYS_FSTATFS, syscall.SYS_POLL, syscall.SYS_EPOLL_PWAIT,
  }
